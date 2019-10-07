@@ -1,1 +1,0 @@
-("7.3" racket ("1db96f466a6c21dad6357f91126ac16f3e1d64a8" . "b17e69f71ec2ae7f6530f831c6d9991eaec516a9") (collects #"br" #"quicklang.rkt") (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"syntax" #"parse" #"define.rkt") (collects #"web-server" #"servlet-env.rkt") (collects #"web-server" #"servlet.rkt"))
