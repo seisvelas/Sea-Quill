@@ -34,26 +34,23 @@ SELECT footer("All Code and Content Public Domain");
 
 Sea Quill is not even beta yet. Don't run Sea Quill on any server you wouldn't publically publishing the root credentials to.
 
-## Todo:
+## Todo
 
-#### Parser
-- [x] Parse basic `select`s
-- [x] `join on`s and filters (`where`s)
-- [x] Parse frontend functions
-- [x] Multiple statements (prevents monster queries)
+#### Infrastructure
 
-#### Expander
-- [x] `(select ...)` handler macro
-- [ ] Get basic selects from http query vars working
-- [ ] Database access
-- [ ] Frontend functions expand to HTML
+- [x] Compiler
+- [x] Server
+- [ ] Database
+- [ ] HTML output (currently outputs Lisp sexprs)
 
-#### Features
-- [ ] Grouping
-- [ ] Make site
+#### Language
+- [x] `(select ... from)` macro
+- [ ] Filtering (`where`) 
+- [ ] Joins
+- [ ] Frontend Functions
+- [ ] Grouping (group by)
 
-
-## Ideas
+## Musings
 
 * Preserve the builtin row/grid nature of SQL, but add frontend functions to alter formatting if desired.
 * Have a `gist()` frontend function for gists
