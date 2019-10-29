@@ -1,8 +1,7 @@
 #lang reader "reader.rkt"
 
-select a, c
+select user, pass
 from HTTP.request
 
-select 44, "hi"
-from HTTP.request
+
 

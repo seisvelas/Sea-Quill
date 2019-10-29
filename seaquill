@@ -1,0 +1,6 @@
+#!/bin/bash
+
+docker build -t seisvelas/seaquill:latest .
+
+docker run -p 8080:80 seisvelas/seaquill:latest
+
