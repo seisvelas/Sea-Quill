@@ -10,7 +10,7 @@ INSERT INTO posts (title, content) VALUES (request.title, request.content)
 SELECT title, content FROM posts
 ```
 
-That's it! Of course, there's still a long way to go! Here's what I'm still working on:
+That's it! If you put that code in the SQL/ directory of a Sea Quill project and run ./seaquill it will run the app live! Of course, there's still a long way to go. Here's what I'm still working on:
 
 ## Todo
 
