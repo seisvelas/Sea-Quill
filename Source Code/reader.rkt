@@ -16,8 +16,15 @@
     (define bf-lexer
       (lexer
        [whitespace (token lexeme #:skip? #t)]
-       [(:or "select" "from" "join" "on" "where" "," "and" "=" "(" ")" ";") lexeme]
+       [(:or (from/to "\"" "\"") (from/to "'" "'"))
+        (token 'STRING
+           (substring lexeme
+                      1 (sub1 (string-length lexeme))))]
+       [(:or "into" "insert" "select"  "create" "table"
+             "from" "join" "on" "where" "values"
+             "," "and" "=" "(" ")" ";") lexeme]
        [(:+ (:or alphabetic "." "\"")) (token 'WORD lexeme)]
-       [(:+ numeric) (token 'WORD lexeme)]))
+       [(:+ numeric) (token 'WORD lexeme)]
+       ))
     (bf-lexer port))  
   next-token)

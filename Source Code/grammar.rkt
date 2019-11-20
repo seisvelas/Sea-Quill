@@ -8,15 +8,20 @@
 ; TODO:
 ; statement : select | insert | update | delete
 ; aggregation : "group by" ...
-; comments (should be removed by tokenizer
+; comments (should be removed by tokenizer)
 
-program   : select (select)*
-select    : /"select" (fields  | (function "(" fields ")")) (/"from" source joins* filters*)? /";"?
-fields    : @field (/"," @field)*
-field     : WORD | function
-function  : WORD /"(" @fields* /")"
-source    : WORD
-joins     : join* 
-join      : "join" source /"on" condition
-filters   : "where" condition ("and" | "or" condition)*
-condition : (field | INTEGER) /"=" (field | INTEGER)
+program      : (@statement)*
+statement    : create_table | select | insert
+insert       : /"insert" /"into" @source /"(" fields /")" /"values" /"(" fields /")"
+create_table : /"create" /"table" @source /"(" field_types /")"
+field_types  : @field @type (/"," @field @type)*
+type         : WORD
+select       : /"select" (fields  | (function "(" fields ")")) (/"from" source joins? where?)? /";"?
+fields       : @field (/"," @field)*
+field        : STRING | WORD | function
+function     : WORD /"(" @fields* /")"
+source       : WORD
+joins        : join* 
+join         : /"join" source /"on" condition
+where        : "where" condition (("and" | "or") condition)*
+condition    : (field | INTEGER) /"=" (field | INTEGER)

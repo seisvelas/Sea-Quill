@@ -38,9 +38,9 @@ echo "
 # dramatic a security snafu as it seems, since Postgres isn't exposed
 # via Docker and therefore can only be accessed via Apache (which is exposed)
 service postgresql start
-su postgres -c "createdb sea"
-su postgres -c "psql -c \"create user sea with encrypted password 'quill';\""
-su postgres -c "psql -c \"grant all privileges on database sea to sea;\"" 
+su - postgres -c "createdb sea"
+su - postgres -c "psql -c \"create user sea with encrypted password 'quill';\""
+su - postgres -c "psql -c \"grant all privileges on database sea to sea;\"" 
 echo "local    all         all       trust" > /etc/postgresql/11/main/pg_hba.conf
 echo "host     all         all       0.0.0.0/0 trust" >> /etc/postgresql/11/main/pg_hba.conf
 service postgresql restart

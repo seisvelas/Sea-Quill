@@ -1,6 +1,10 @@
 #lang reader "reader.rkt"
 
-select title
+create table post (title TEXT, content TEXT)
+
+insert into post (title, content) values (request.title, request.content)
+
+select title, content
 from post
 
 select name, pass

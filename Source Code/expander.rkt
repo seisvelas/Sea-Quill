@@ -8,7 +8,8 @@
 (require racket/cmdline)
 (require db)
 
-;(define (table->hash table)
+(define HTTP.request (make-parameter null))
+(define namespace (make-parameter null))
 
 (define (table->dict head [rows '()] [fields (make-immutable-hash)])
   (if (rows-result? head)
@@ -29,26 +30,68 @@
               (string-append "select * from " table))))
 
 
-(define HTTP.request (make-parameter null))
-
 (define (get-table-data source)
   (cond [(equal? source "request") (HTTP.request)]
         [else (load-table source)])) 
 
+(define (sql-func func . fields)
+
+
+(define (resolve-field field source)
+  (if (list? field)
+      (cond [(equal? (first field) 'function) (apply sql-func field)]
+            [else "Invalid function call"])
+      (let ((numeric (string->number field)))
+        (cond [numeric field] ; if it's a number return as is
+              [(and (string-prefix? field "\"") (string-suffix? field "\"")) field]
+              [else (hash-ref (get-table-data source) field (string-append "No such field: " field))]))))
+
 (define-simple-macro (select . clauses)
   (let [(fields (first 'clauses))
-        (source (if (> (length 'clauses) 1) (second (second 'clauses)) '()))]
-    (map (λ (field)
-           (let ((numeric (string->number field)))
-             (cond [numeric field] ; if it's a number return as is
-                   [(and (string-prefix? field "\"") (string-suffix? field "\"")) field]
-                   [else (hash-ref (get-table-data source) field (string-append "No such field: " field))])))
-         (rest fields)))) ; then just get the colums in fields :D
+        (source (if (> (length 'clauses) 1) (second (second 'clauses)) '()))
+        ] ; add joins and filters here! (then add them below duh)
+    (map (lambda (field) (resolve-field field source)) (rest fields)))) ; then just get the colums in fields :D
 (provide select)
 
 (define (program . code)
-  code)
+  (filter (lambda (x) (not (void? x))) code))
 (provide program)
+
+(define (format-creation-fields fields [string-fields ""])
+  (if (empty? fields)
+      string-fields
+      (format-creation-fields (cddr fields)
+        (string-append string-fields
+          (if (equal? "" string-fields) "" ", ")
+          (car fields) " " (cadr fields)))))
+
+(define-simple-macro (create table fields)
+  (query-exec (postgresql-connect #:user "sea"
+                                  #:database "sea"
+                                  #:password "quill")
+    (format "CREATE TABLE IF NOT EXISTS ~a (~a)"
+            table
+            (format-creation-fields (cdr 'fields)))))
+(provide create)
+
+(define (resolve x)
+  (if (equal? (first (string-split x ".")) "request")
+    (hash-ref (HTTP.request) (second (string-split x ".")) (void))
+    x))
+
+(define-simple-macro (insert table fields values)
+  (let ((http-vals (map (lambda (x) (resolve x)) (rest 'values))))
+    (if (member (void) http-vals)
+        (void)
+        (let ((statement (format "INSERT INTO ~a (~a) VALUES (~a)" table
+          (string-join (rest 'fields) ", ")
+          (string-join (map (lambda (field) (string-append "'" field "'"))
+               http-vals) ", "))))
+            (query-exec (postgresql-connect #:user "sea"
+                                   #:database "sea"
+                                   #:password "quill")
+                    statement))))) ; check for void cuz that means no insert-y!
+(provide insert)
 
 (define-macro (bf-module-begin PARSE-TREE)
   #'(#%module-begin

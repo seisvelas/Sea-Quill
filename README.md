@@ -1,32 +1,10 @@
 te full stack, ready to deploy web applications with simple SQL statements.
 
+For example, here is a simple chan-style message board in [x] lines
+
 ```sql
--- Simple blog
+-- get posts
 
-SELECT photo_header("photo.jpg", "Hi, I'm Alex. I like code, kendo, and math");
-
-
-SELECT nav_bar(db.category.name)
-FROM db.category;
-
-
-SELECT
-    blurb(
-        header(db.post.title),
-        db.post.date,
-        db.category.name,
-        paragraph(db.post.body)
-    )
-FROM
-    db.post
-JOIN
-    db.category
-ON
-    db.category.id = db.post.categoryid
-WHERE
-    -- The pseudo-database 'http' contains GET/POST variables
-    -- and doesn't need to be JOIN'd to be accessed
-    db.category.name = http.category;
 
 
 SELECT footer("All Code and Content Public Domain");

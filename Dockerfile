@@ -2,11 +2,6 @@
 # release could break our whole build.
 FROM debian:latest
 
-# Move files into Docker
-COPY . /root
-WORKDIR /root
-RUN cp ./SQL/* "./Source Code"
-
 # Install Racket & libraries
 RUN apt-get update
 RUN apt-get install software-properties-common -y
@@ -17,14 +12,19 @@ RUN raco pkg install --auto beautiful-racket
 RUN raco pkg install --auto threading
 
 # Useful for debugging
-RUN apt install vim -y
-RUN apt install curl -y
+RUN apt-get install vim -y
+RUN apt-get install curl -y
 
 # Install Postgres
 RUN apt-get install postgresql postgresql-client -y
 
+# Move files into Docker
+COPY . /root
+WORKDIR /root
+RUN cp ./SQL/* "./Source Code"
+
 # Install & run Apache
-RUN apt install apache2 -y
+RUN apt-get install apache2 -y
 RUN a2enmod proxy
 RUN a2enmod proxy_http
 RUN a2enmod proxy_balancer
