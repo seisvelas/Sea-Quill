@@ -29,5 +29,5 @@ That's it! If you put that code in the SQL/ directory of a Sea Quill project and
 ## Musings
 
 * Preserve the builtin row/grid nature of SQL, but add frontend functions to alter formatting if desired.
-* Have a `gist()` frontend function for gists
+* Have a `gist()` frontend function for embedded Github gists
 
