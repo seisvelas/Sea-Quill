@@ -1,16 +1,16 @@
-te full stack, ready to deploy web applications with simple SQL statements.
+Write full stack, ready to deploy web applications with simple SQL statements.
 
-For example, here is a simple chan-style message board in [x] lines
+Sea Quill is still not ready, but it can already do some simple things. For example, here is a simple BBS message board in Sea Quill:
 
 ```sql
--- get posts
+CREATE TABLE posts (title TEXT, content TEXT)
 
+INSERT INTO posts (title, content) VALUES (request.title, request.content)
 
-
-SELECT footer("All Code and Content Public Domain");
+SELECT title, content FROM posts
 ```
 
-Sea Quill is not even beta yet. Don't run Sea Quill on any server you wouldn't publically publishing the root credentials to.
+That's it! Of course, there's still a long way to go! Here's what I'm still working on:
 
 ## Todo
 
@@ -18,15 +18,13 @@ Sea Quill is not even beta yet. Don't run Sea Quill on any server you wouldn't p
 
 - [x] Compiler
 - [x] Server
-- [ ] Database
-- [ ] HTML output (currently outputs Lisp sexprs)
-
-#### Language
-- [x] `(select ... from)` macro
-- [ ] Filtering (`where`) 
-- [ ] Joins
+- [x] Database
+- [x] INSERT
+- [x] CREATE TABLE
+- [x] SELECT
+- [ ] WHERE
+- [ ] JOIN
 - [ ] Frontend Functions
-- [ ] Grouping (group by)
 
 ## Musings
 
