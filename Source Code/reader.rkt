@@ -25,6 +25,7 @@
              "," "and" "=" "(" ")" ";") lexeme]
        [(:+ (:or alphabetic "." "\"")) (token 'WORD lexeme)]
        [(:+ numeric) (token 'WORD lexeme)]
+       [(:+ (:or alphabetic "_")) (token 'WORD lexeme)]
        ))
     (bf-lexer port))  
   next-token)

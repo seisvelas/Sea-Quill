@@ -16,7 +16,7 @@ insert       : /"insert" /"into" @source /"(" fields /")" /"values" /"(" fields 
 create_table : /"create" /"table" @source /"(" field_types /")"
 field_types  : @field @type (/"," @field @type)*
 type         : WORD
-select       : /"select" (fields  | (function "(" fields ")")) (/"from" source joins? where?)? /";"?
+select       : /"select" fields (/"from" source joins? where?)? /";"?
 fields       : @field (/"," @field)*
 field        : STRING | WORD | function
 function     : WORD /"(" @fields* /")"
