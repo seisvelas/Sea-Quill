@@ -19,12 +19,12 @@ That's it! If you put that code in the SQL/ directory of a Sea Quill project and
 - [x] Compiler
 - [x] Server
 - [x] Database
-- [x] INSERT
-- [x] CREATE TABLE
-- [x] SELECT
-- [ ] WHERE
-- [ ] JOIN
-- [ ] Frontend Functions
+- [x] `INSERT`
+- [x] `CREATE TABLE`
+- [x] `SELECT`
+- [x] `WHERE`
+- [ ] `JOIN`
+- [ ] Frontend Functions (half done)
 
 ## Musings
 
