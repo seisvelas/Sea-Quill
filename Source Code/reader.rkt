@@ -5,6 +5,7 @@
   (define parse-tree (parse path (make-tokenizer port)))
   (define module-datum `(module sql-mod "expander.rkt"
                           ,parse-tree))
+                          
   (datum->syntax #f module-datum))
 (provide read-syntax)
 
@@ -16,14 +17,11 @@
     (define bf-lexer
       (lexer
        [whitespace (token lexeme #:skip? #t)]
-       [(:or (from/to "\"" "\"") (from/to "'" "'"))
-        (token 'STRING
-           (substring lexeme
-                      1 (sub1 (string-length lexeme))))]
        [(:or "into" "insert" "select"  "create" "table"
              "from" "join" "on" "where" "values"
              "," "and" "=" "(" ")" ";") lexeme]
-       [(:+ (:or alphabetic "." "\"")) (token 'WORD lexeme)]
+       [(:+ (:or alphabetic ".")) (token 'WORD lexeme)]
+       [(:+ (:or alphabetic "." "'")) (token 'STRING lexeme)]
        [(:+ numeric) (token 'WORD lexeme)]
        [(:+ (:or alphabetic "_")) (token 'WORD lexeme)]
        ))

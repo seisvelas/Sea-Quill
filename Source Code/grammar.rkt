@@ -18,10 +18,10 @@ field_types  : @field @type (/"," @field @type)*
 type         : WORD
 select       : /"select" fields (/"from" source joins? where?)? /";"?
 fields       : @field (/"," @field)*
-field        : STRING | WORD | function
+field        : INTEGER | STRING | WORD | function
 function     : WORD /"(" @fields* /")"
 source       : WORD
 joins        : join* 
 join         : /"join" source /"on" condition
-where        : "where" condition (("and" | "or") condition)*
-condition    : (field | INTEGER) /"=" (field | INTEGER)
+where        : /"where" condition (/("and" | "or") condition)*
+condition    : field /"=" field

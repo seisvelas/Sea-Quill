@@ -25,13 +25,13 @@ here-string-delimiter
 (define HTTP.request (make-parameter null))
 (define SQL.functions (make-hash
   (list
-    (cons "blog_post" (lambda (source title content) 
+    (cons "blog_post" (lambda (source filter title content) 
       (apply string-append 
              (map (lambda (name post)
                     (string-append "<div class='col-md-6 col-md-offset-3 jumbotron'><h1>" name "</h1><p>" post "</p></div></div>"
                     )) 
-                  (resolve-field title source)
-                  (resolve-field content source)))))
+                  (resolve-field title source filter)
+                  (resolve-field content source filter)))))
   )
 ))
 
@@ -47,40 +47,63 @@ here-string-delimiter
                                  (flatten (map first rows)))))))
 
 
-(define (load-table table)
+(define (load-table table filter)
   (table->dict (query (postgresql-connect #:user "sea"
                                    #:database "sea"
                                    #:password "quill")
-              (string-append "select * from " table))))
+              (string-append "select * from " table filter))))
 
 
-(define (get-table-data source)
+(define (get-table-data source filter)
   (cond [(equal? source "request") (HTTP.request)]
-        [else (load-table source)])) 
+        [else (load-table source filter)])) 
 
-(define (sql-func source func . fields)
-  (apply (hash-ref SQL.functions func "function not found") (cons source fields)))
+(define (sql-func source filter func . fields)
+  (apply (hash-ref SQL.functions func "function not found") (cons source (cons filter fields))))
 
-(define (resolve-field field source)
+(define (resolve-field field source filter)
   (if (list? field)
       (cond [(equal? (first field) 'function) 
-              (apply sql-func (cons source (rest field)))]
+              (apply sql-func (cons source (cons filter (rest field))))]
             [else "Invalid function call"])
       (let ((numeric (string->number field)))
         (cond [numeric field] ; if it's a number return as is
               [(and (string-prefix? field "\"") (string-suffix? field "\"")) field]
-              [else (hash-ref (get-table-data source) field (string-append "No such field: " field))]))))
+              [(equal? (first (string-split field ".")) "request")
+                (hash-ref (HTTP.request) (second (string-split field ".")) (void))]
+              [else (hash-ref (get-table-data source filter) field (string-append "No such field: " field))]))))
+
+(define (format-conditions conds)
+  (string-append " where " (string-join (map (lambda (cond)
+    (string-append (~a 
+        (resolve (second (cadr cond)))
+    ) "=" 
+        (resolve (cadr (third cond)))))
+    conds) 
+  " and ")))
+
+(define (get-filter clauses)
+  (cond [(empty? clauses) ""]
+        [(and (list? (first clauses)) 
+              (not (empty? (first clauses)))
+              (equal? (first (first clauses)) 'where))
+            (let ((filter (first clauses)))
+              (format-conditions (rest filter))
+            )
+        ]
+        [else (get-filter (rest clauses))]))
 
 (define-simple-macro (select . clauses)
   (let [(fields (first 'clauses))
         (source (if (> (length 'clauses) 1) (second (second 'clauses)) '()))
         (order #f)
-        ] ; add joins and filters here! (then add them below duh)
-    (map (lambda (field) (if order (resolve-field field source) (reverse (resolve-field field source)))) (rest fields)))) ; then just get the colums in fields :D
+        (filter (get-filter 'clauses))
+        ] ; add joins here! (then add them below duh)
+    (string-join (map (lambda (field) (resolve-field field source filter)) (rest fields)) ""))) ; then just get the colums in fields :D
 (provide select)
 
 (define (program . code)
-  (filter (lambda (x) (not (void? x))) code))
+  (filter (lambda (x) (not (or (empty? x) (void? x)))) code))
 (provide program)
 
 (define (format-creation-fields fields [string-fields ""])
@@ -102,7 +125,9 @@ here-string-delimiter
 
 (define (resolve x)
   (if (equal? (first (string-split x ".")) "request")
-    (hash-ref (HTTP.request) (second (string-split x ".")) (void))
+    (string-append "'" (let ((result (hash-ref (HTTP.request) (second (string-split x ".")) (void))))
+      (if (void? result) "#:void" result)) 
+    "'")
     x))
 
 (define (upload-form fields)
@@ -140,13 +165,13 @@ here-string-delimiter
   (begin
   (let ((fields (map quit-type 'fields_raw))
         (http-vals (map (lambda (x) (resolve x)) (rest 'values))))
-    (if (member (void) http-vals)
+    (if (member "'#:void'" http-vals)
         (void)
         (let ((statement (format "INSERT INTO ~a (~a) VALUES (~a)" table
           (string-join (rest fields) ", ")
-          (string-join (map (lambda (field) (string-append "'" field "'"))
-               http-vals) ", "))))
-            (query-exec (postgresql-connect #:user "sea"
+          (string-join http-vals ", "))))
+            (query-exec (postgresql-connect 
+                                   #:user "sea"
                                    #:database "sea"
                                    #:password "quill")
                     statement
